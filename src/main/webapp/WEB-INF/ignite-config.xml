@@ -1,0 +1,131 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans     
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
+
+	<bean id="ignite.cfg" class="org.apache.ignite.configuration.IgniteConfiguration">
+		<property name="igniteInstanceName" value="nvIDNLocal" />
+		<property name="metricsLogFrequency" value="0" />
+		<property name="peerClassLoadingEnabled" value="false" />
+		<property name="cacheConfiguration">
+			<list>
+				<ref bean="USER_CACHE" />
+				<ref bean="ROLES_CACHE" />
+			</list>
+		</property>
+		<!-- Off heap cache memory size -->
+		<property name="memoryConfiguration">
+			<bean class="org.apache.ignite.configuration.MemoryConfiguration">
+				<property name="systemCacheInitialSize" value="#{10L * 1024 * 1024}" />
+				<property name="systemCacheMaxSize" value="#{20L * 1024 * 1024}" />
+				<property name="memoryPolicies">
+					<list>
+						<bean class="org.apache.ignite.configuration.MemoryPolicyConfiguration">
+							<property name="metricsEnabled" value="false" />
+							<property name="name" value="default" />
+							<property name="maxSize" value="#{128L * 1024 * 1024}" />
+							<property name="initialSize" value="#{128L * 1024 * 1024}" />
+						</bean>
+					</list>
+				</property>
+			</bean>
+		</property>
+		<property name="persistentStoreConfiguration">
+			<bean class="org.apache.ignite.configuration.PersistentStoreConfiguration">
+				<property name="persistentStorePath" value="S:\\Nitrogen\\SiteReview\\workNew" />
+			</bean>
+		</property>
+		<property name="workDirectory" value="S:\\Nitrogen\\SiteReview\\work" />
+		<property name="atomicConfiguration">
+			<bean class="org.apache.ignite.configuration.AtomicConfiguration">
+				<property name="atomicSequenceReserveSize" value="100" />
+				<property name="cacheMode" value="REPLICATED" />
+				<property name="backups" value="2" />
+			</bean>
+		</property>
+	</bean>
+	<bean id="USER_CACHE" class="org.apache.ignite.configuration.CacheConfiguration">
+		<property name="name" value="USER_CACHE" />
+		<property name="cacheMode" value="REPLICATED" />
+		<property name="onheapCacheEnabled" value="true" />
+		<property name="evictionPolicy">
+			<!-- LRU eviction policy. -->
+			<bean class="org.apache.ignite.cache.eviction.lru.LruEvictionPolicy">
+				<!-- Set the maximum cache size to 1 million (default is 100,000). -->
+				<property name="maxMemorySize" value="#{128L * 1024 * 1024}" />
+			</bean>
+		</property>
+		<property name="queryEntities">
+			<list>
+				<bean class="org.apache.ignite.cache.QueryEntity">
+					<!-- Setting indexed type's key class -->
+					<property name="keyType" value="java.lang.String" />
+
+					<!-- Setting indexed type's value class -->
+					<property name="valueType" value="com.nvrignite.entities.User" />
+					<property name="fields">
+						<map>
+							<entry key="userName" value="java.lang.String" />
+						</map>
+					</property>
+					<!-- Defining indexed fields. -->
+					<property name="indexes">
+						<list>
+							<!-- Single field (aka. column) index -->
+							<bean class="org.apache.ignite.cache.QueryIndex">
+								<constructor-arg value="userName" />
+							</bean>
+						</list>
+					</property>
+
+				</bean>
+
+			</list>
+		</property>
+	</bean>
+	<bean id="ROLES_CACHE" class="org.apache.ignite.configuration.CacheConfiguration">
+		<property name="name" value="ROLES_CACHE" />
+		<property name="cacheMode" value="REPLICATED" />
+		<property name="onheapCacheEnabled" value="true" />
+		<property name="evictionPolicy">
+			<!-- LRU eviction policy. -->
+			<bean class="org.apache.ignite.cache.eviction.lru.LruEvictionPolicy">
+				<!-- Set the maximum cache size to 1 million (default is 100,000). -->
+				<property name="maxMemorySize" value="#{128L * 1024 * 1024}" />
+			</bean>
+		</property>
+		<property name="queryEntities">
+			<list>
+				<bean class="org.apache.ignite.cache.QueryEntity">
+					<!-- Setting indexed type's key class -->
+					<property name="keyType" value="java.lang.String" />
+
+					<!-- Setting indexed type's value class -->
+					<property name="valueType" value="com.nvrignite.entities.RolesPermission" />
+					<property name="fields">
+						<map>
+							<entry key="roleName" value="java.lang.String" />
+						</map>
+					</property>
+					<!-- Defining indexed fields. -->
+					<property name="indexes">
+						<list>
+							<bean class="org.apache.ignite.cache.QueryIndex">
+								<constructor-arg value="roleName" />
+							</bean>
+						</list>
+					</property>
+
+				</bean>
+
+			</list>
+		</property>
+
+	</bean>
+</beans>
